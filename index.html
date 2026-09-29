@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>NAI Metadata Reader</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>NAI Metadata Reader</h1>
+      <p>이미지는 서버로 업로드하지 않고 이 브라우저 안에서만 분석합니다.</p>
+    </div>
+    <button id="themeBtn" class="ghost" type="button">다크 모드</button>
+  </header>
+
+  <main class="shell">
+    <section id="dropZone" class="dropzone" tabindex="0" aria-label="이미지 업로드 영역">
+      <input id="fileInput" type="file" accept="image/png,image/webp,image/jpeg,.png,.webp,.jpg,.jpeg" multiple hidden />
+      <div class="drop-icon">＋</div>
+      <strong>이미지를 여기에 끌어다 놓으세요</strong>
+      <span>PNG / WebP / JPEG · 여러 장 선택 가능</span>
+      <button id="chooseBtn" type="button">파일 선택</button>
+    </section>
+
+    <section class="toolbar panel">
+      <label class="range-wrap">
+        <span>미리보기 크기 <b id="previewWidthValue">400px</b></span>
+        <input id="previewWidth" type="range" min="180" max="900" value="400" step="20" />
+      </label>
+      <div class="toolbar-actions">
+        <button id="dedupeBtn" class="secondary" type="button">중복 제거</button>
+        <button id="copyAllBtn" class="secondary" type="button">전체 복사</button>
+        <button id="resetBtn" class="danger" type="button">초기화</button>
+      </div>
+    </section>
+
+    <section id="emptyState" class="empty panel">
+      선택된 이미지가 없습니다.
+    </section>
+
+    <section id="workspace" class="workspace" hidden>
+      <aside class="image-list panel">
+        <div class="section-title-row">
+          <h2>이미지 목록</h2>
+          <span id="imageCount" class="count"></span>
+        </div>
+        <div id="imageList"></div>
+      </aside>
+
+      <article id="resultPane" class="result-pane"></article>
+    </section>
+  </main>
+
+  <template id="fieldTemplate">
+    <section class="field-card panel">
+      <div class="field-head">
+        <h3></h3>
+        <button class="copy-btn secondary" type="button">복사</button>
+      </div>
+      <pre class="field-value"></pre>
+    </section>
+  </template>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
