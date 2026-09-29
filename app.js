@@ -13,7 +13,7 @@ const chooseBtn = $('#chooseBtn');
 const dropZone = $('#dropZone');
 const imageList = $('#imageList');
 const resultPane = $('#resultPane');
-const workspace = $('#workspace');
+const emptyListHint = $('#emptyListHint');
 const emptyState = $('#emptyState');
 const previewWidth = $('#previewWidth');
 const previewWidthValue = $('#previewWidthValue');
@@ -105,6 +105,8 @@ function resetAll() {
 function renderList() {
   imageList.innerHTML = '';
   $('#imageCount').textContent = state.items.length ? `${state.items.length}장` : '';
+  $('#sidebarImageCount').textContent = state.items.length;
+  emptyListHint.hidden = state.items.length > 0;
   for (const item of state.items) {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -116,29 +118,36 @@ function renderList() {
     btn.addEventListener('click', () => { state.selectedId = item.id; renderList(); renderSelected(); });
     imageList.appendChild(btn);
   }
-  const has = state.items.length > 0;
-  workspace.hidden = !has;
-  emptyState.hidden = has;
 }
 
 function renderSelected() {
   resultPane.innerHTML = '';
   const item = state.items.find(x => x.id === state.selectedId);
+  const hasItem = Boolean(item);
+  resultPane.hidden = !hasItem;
+  emptyState.hidden = hasItem;
   if (!item) return renderList();
 
   const preview = document.createElement('section');
   preview.className = 'preview-card panel';
   const badges = item.parsed ? item.parsed.sources.map(x => `<span class="badge">${escapeHtml(x)}</span>`).join('') : '';
+  const metaSummary = item.parsed ? summaryRows(item) : [];
   preview.innerHTML = `
     <div class="preview-top">
       <div><h2></h2><p>${formatBytes(item.file.size)} · ${escapeHtml(item.file.type || 'image')}</p></div>
       <div class="badges">${badges}</div>
     </div>
-    <div class="preview-wrap"><img alt="미리보기" src="${item.url}" style="width:${state.previewWidth}px"></div>`;
+    <div class="preview-grid">
+      <div class="preview-wrap"><img alt="미리보기" src="${item.url}" style="width:${state.previewWidth}px"></div>
+      <aside class="info-box">
+        <h3>빠른 정보</h3>
+        <dl class="info-list">${metaSummary.map(([k,v]) => `<div class="info-row"><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(String(v))}</dd></div>`).join('')}</dl>
+      </aside>
+    </div>`;
   preview.querySelector('h2').textContent = item.file.name;
   resultPane.appendChild(preview);
 
-  if (item.status === 'loading') return addField('분석 상태', '메타데이터를 분석 중입니다…');
+  if (item.status === 'loading') return appendField(resultPane, '분석 상태', '메타데이터를 분석 중입니다…');
   if (item.status === 'error') {
     const e = document.createElement('section');
     e.className = 'error-card panel';
@@ -148,16 +157,24 @@ function renderSelected() {
   }
 
   const d = displayData(item.parsed, state.deduped);
-  addField('긍정 프롬프트', d.positive);
-  addField('캐릭터 긍정 프롬프트', d.charPositive);
-  addField('부정 프롬프트', d.negative);
-  addField('캐릭터 부정 프롬프트', d.charNegative);
-  addField('NAI 모델 및 설정', d.settings);
-  addField('Stealth PNG 메타데이터', d.stealth);
-  addField('파일 메타데이터 (Raw)', d.raw);
+  const promptGrid = document.createElement('section');
+  promptGrid.className = 'fields-grid';
+  const metaGrid = document.createElement('section');
+  metaGrid.className = 'meta-grid';
+
+  appendField(promptGrid, '긍정 프롬프트', d.positive);
+  appendField(promptGrid, '캐릭터 긍정 프롬프트', d.charPositive);
+  appendField(promptGrid, '부정 프롬프트', d.negative);
+  appendField(promptGrid, '캐릭터 부정 프롬프트', d.charNegative);
+  appendField(metaGrid, 'NAI 모델 및 설정', d.settings);
+  appendField(metaGrid, 'Stealth PNG 메타데이터', d.stealth);
+  appendField(metaGrid, '파일 메타데이터 (Raw)', d.raw);
+
+  resultPane.appendChild(promptGrid);
+  resultPane.appendChild(metaGrid);
 }
 
-function addField(title, value) {
+function appendField(parent, title, value) {
   const node = $('#fieldTemplate').content.firstElementChild.cloneNode(true);
   node.querySelector('h3').textContent = title;
   const pre = node.querySelector('.field-value');
@@ -165,7 +182,34 @@ function addField(title, value) {
   pre.textContent = text;
   if (!value || !String(value).trim()) pre.classList.add('empty-value');
   node.querySelector('.copy-btn').addEventListener('click', () => copyText(value || ''));
-  resultPane.appendChild(node);
+  parent.appendChild(node);
+}
+
+function summaryRows(item) {
+  if (!item.parsed) return [['상태', item.status === 'loading' ? '분석 중' : '대기 중']];
+  const parsed = item.parsed;
+  const settings = extractSettingsMap(parsed.settingsText);
+  return [
+    ['감지 방식', detectionSummary(parsed)],
+    ['모델', settings['Model / Source'] || '-'],
+    ['Sampler', settings['Sampler'] || '-'],
+    ['Steps', settings['Steps'] || '-'],
+    ['CFG', settings['CFG / Scale'] || '-'],
+    ['Seed', settings['Seed'] || '-'],
+  ];
+}
+
+function extractSettingsMap(text) {
+  const out = {};
+  if (!text) return out;
+  for (const line of String(text).split(/\n+/)) {
+    const idx = line.indexOf(':');
+    if (idx < 0) continue;
+    const key = line.slice(0, idx).trim();
+    const value = line.slice(idx + 1).trim();
+    if (key) out[key] = value;
+  }
+  return out;
 }
 
 function displayData(parsed, dedupe) {

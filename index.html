@@ -9,48 +9,86 @@
 </head>
 <body>
   <header class="topbar">
-    <div>
+    <div class="brand-block">
+      <p class="eyebrow">YAMMO META</p>
       <h1>NAI Metadata Reader</h1>
-      <p>이미지는 서버로 업로드하지 않고 이 브라우저 안에서만 분석합니다.</p>
+      <p class="subtitle">이미지는 업로드되지 않고, 지금 사용하는 브라우저 안에서만 분석됩니다.</p>
     </div>
-    <button id="themeBtn" class="ghost" type="button">다크 모드</button>
+    <div class="header-actions">
+      <span class="header-chip">Local only</span>
+      <button id="themeBtn" class="ghost" type="button">다크 모드</button>
+    </div>
   </header>
 
-  <main class="shell">
-    <section id="dropZone" class="dropzone" tabindex="0" aria-label="이미지 업로드 영역">
-      <input id="fileInput" type="file" accept="image/png,image/webp,image/jpeg,.png,.webp,.jpg,.jpeg" multiple hidden />
-      <div class="drop-icon">＋</div>
-      <strong>이미지를 여기에 끌어다 놓으세요</strong>
-      <span>PNG / WebP / JPEG · 여러 장 선택 가능</span>
-      <button id="chooseBtn" type="button">파일 선택</button>
-    </section>
+  <main class="shell app-layout">
+    <aside class="sidebar">
+      <section class="profile-card panel">
+        <div class="profile-top">
+          <div class="avatar">YM</div>
+          <div>
+            <strong>yammo_meta</strong>
+            <p>private style NAI metadata archive</p>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div><b id="sidebarImageCount">0</b><span>IMAGES</span></div>
+          <div><b>LOCAL</b><span>MODE</span></div>
+        </div>
+      </section>
 
-    <section class="toolbar panel">
-      <label class="range-wrap">
-        <span>미리보기 크기 <b id="previewWidthValue">400px</b></span>
-        <input id="previewWidth" type="range" min="180" max="900" value="400" step="20" />
-      </label>
-      <div class="toolbar-actions">
-        <button id="dedupeBtn" class="secondary" type="button">중복 제거</button>
-        <button id="copyAllBtn" class="secondary" type="button">전체 복사</button>
-        <button id="resetBtn" class="danger" type="button">초기화</button>
-      </div>
-    </section>
+      <section id="dropZone" class="dropzone panel" tabindex="0" aria-label="이미지 업로드 영역">
+        <input id="fileInput" type="file" accept="image/png,image/webp,image/jpeg,.png,.webp,.jpg,.jpeg" multiple hidden />
+        <div class="drop-icon">＋</div>
+        <strong>이미지 추가</strong>
+        <span>PNG / WebP / JPEG · 여러 장 가능</span>
+        <button id="chooseBtn" type="button">파일 선택</button>
+      </section>
 
-    <section id="emptyState" class="empty panel">
-      선택된 이미지가 없습니다.
-    </section>
+      <section class="control-card panel">
+        <div class="panel-head compact">
+          <h2>보기 옵션</h2>
+        </div>
+        <label class="range-wrap stacked">
+          <span>미리보기 크기 <b id="previewWidthValue">400px</b></span>
+          <input id="previewWidth" type="range" min="180" max="900" value="400" step="20" />
+        </label>
+        <div class="toolbar-actions stacked-actions">
+          <button id="dedupeBtn" class="secondary" type="button">중복 제거</button>
+          <button id="copyAllBtn" class="secondary" type="button">전체 복사</button>
+          <button id="resetBtn" class="danger" type="button">초기화</button>
+        </div>
+      </section>
 
-    <section id="workspace" class="workspace" hidden>
-      <aside class="image-list panel">
-        <div class="section-title-row">
+      <section class="image-list panel">
+        <div class="panel-head compact">
           <h2>이미지 목록</h2>
           <span id="imageCount" class="count"></span>
         </div>
+        <div id="emptyListHint" class="list-hint">아직 추가된 이미지가 없습니다.</div>
         <div id="imageList"></div>
-      </aside>
+      </section>
+    </aside>
 
-      <article id="resultPane" class="result-pane"></article>
+    <section class="content-area">
+      <section class="hero-card panel">
+        <div>
+          <p class="eyebrow">METADATA TOOL</p>
+          <h2>편하게 읽고, 편하게 복사하는 구조로 바꿨어요.</h2>
+          <p>왼쪽에서 이미지를 선택하고, 오른쪽에서 프롬프트 / 설정 / 원본 메타데이터를 한눈에 확인하세요.</p>
+        </div>
+        <div class="hero-tips">
+          <div class="tip-pill">긍정/부정 프롬프트 분리</div>
+          <div class="tip-pill">Stealth PNG 지원</div>
+          <div class="tip-pill">전체 복사 / 개별 복사</div>
+        </div>
+      </section>
+
+      <section id="emptyState" class="empty panel">
+        <strong>아직 선택된 이미지가 없어요.</strong>
+        <p>왼쪽의 파일 선택 버튼 또는 드래그앤드롭으로 이미지를 추가해 주세요.</p>
+      </section>
+
+      <article id="resultPane" class="result-pane" hidden></article>
     </section>
   </main>
 
