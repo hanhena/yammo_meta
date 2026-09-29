@@ -5,17 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
   <title>NAI Metadata Reader</title>
-  <link rel="stylesheet" href="styles-notion.css" />
+  <link rel="stylesheet" href="styles-profile-v2.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand-block">
       <p class="eyebrow">YAMMO META</p>
       <h1>NAI Metadata Reader</h1>
-      <p class="subtitle">이미지는 업로드되지 않고, 지금 사용하는 브라우저 안에서만 분석됩니다.</p>
     </div>
     <div class="header-actions">
-      <span class="header-chip">Local only</span>
       <button id="themeBtn" class="ghost" type="button">다크 모드</button>
     </div>
   </header>
@@ -24,7 +22,11 @@
     <aside class="sidebar">
       <section class="profile-card panel">
         <div class="profile-top">
-          <div class="avatar">YM</div>
+          <button id="profilePhotoBtn" class="profile-photo-btn" type="button" title="프로필 이미지 변경">
+            <img id="profilePhotoImage" alt="프로필 이미지" hidden />
+            <span id="profilePhotoPlaceholder">YM</span>
+          </button>
+          <input id="profilePhotoInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
           <div>
             <strong>yammo_meta</strong>
             <p>private style NAI metadata archive</p>
@@ -70,19 +72,6 @@
     </aside>
 
     <section class="content-area">
-      <section class="hero-card panel">
-        <div>
-          <p class="eyebrow">METADATA TOOL</p>
-          <h2>편하게 읽고, 편하게 복사하는 구조로 바꿨어요.</h2>
-          <p>왼쪽에서 이미지를 선택하고, 오른쪽에서 프롬프트 / 설정 / 원본 메타데이터를 한눈에 확인하세요.</p>
-        </div>
-        <div class="hero-tips">
-          <div class="tip-pill">긍정/부정 프롬프트 분리</div>
-          <div class="tip-pill">Stealth PNG 지원</div>
-          <div class="tip-pill">전체 복사 / 개별 복사</div>
-        </div>
-      </section>
-
       <section id="emptyState" class="empty panel">
         <strong>아직 선택된 이미지가 없어요.</strong>
         <p>왼쪽의 파일 선택 버튼 또는 드래그앤드롭으로 이미지를 추가해 주세요.</p>
@@ -102,7 +91,32 @@
     </section>
   </template>
 
+  <div id="photoCropModal" class="crop-modal" hidden>
+    <div class="crop-backdrop" data-close-crop></div>
+    <section class="crop-dialog" role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+      <div class="crop-head">
+        <div>
+          <p class="eyebrow">PROFILE IMAGE</p>
+          <h2 id="cropTitle">프로필 이미지 자르기</h2>
+        </div>
+        <button id="cropCloseBtn" class="ghost crop-x" type="button" aria-label="닫기">×</button>
+      </div>
+      <div class="crop-canvas-wrap">
+        <canvas id="cropCanvas" width="360" height="360"></canvas>
+      </div>
+      <p class="crop-help">이미지를 드래그해서 위치를 맞추고, 아래 슬라이더로 확대/축소하세요.</p>
+      <label class="crop-zoom">
+        <span>확대</span>
+        <input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1" />
+      </label>
+      <div class="crop-actions">
+        <button id="cropCancelBtn" class="secondary" type="button">취소</button>
+        <button id="cropSaveBtn" type="button">적용</button>
+      </div>
+    </section>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="app-20260929.js"></script>
+  <script src="app-profile-v2.js"></script>
 </body>
 </html>
